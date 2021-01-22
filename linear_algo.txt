@@ -1,0 +1,74 @@
+import pandas as pd
+
+
+data = pd.read_csv('Salary_Data.csv')
+data.head()
+
+data.info()
+
+x= data['YearsExperience'].values
+y= data['Salary'].values
+
+type(x)
+
+
+print(x,'\n\n', y)
+
+x.shape
+y.shape
+
+x
+
+# shape of feature should be(no. of samples, no. of features)
+x=x.reshape(len(x),1)
+print(x)
+
+# divide data into training and testing samples
+from sklearn.model_selection import train_test_split
+xtrain, xtest, ytrain, ytest = train_test_split(x,y, train_size = 0.80, random_state=1)
+
+
+xtrain
+
+xtest
+
+ytrain
+
+ytest
+
+#prepare model
+from sklearn.linear_model import LinearRegression
+model = LinearRegression()
+
+
+#train model
+model.fit(xtrain, ytrain)
+
+#prediction
+ypred = model.predict(xtest)
+ypred
+
+ytest
+
+from sklearn.metrics import r2_score
+r2 = r2_score(ytest, ypred)
+r2
+
+#cross validation
+accu = []
+for i in range(1, 101):
+  xtrain, xtest, ytrain, ytest = train_test_split(x, y, train_size=0.80, random_state=i)
+  model = LinearRegression()
+  model.fit(xtrain, ytrain)
+  ypred = model.predict(xtest)
+  r2 = r2_score(ytest, ypred)
+  accu.append(r2)
+
+
+import numpy as np
+acc_array = np.array(accu)
+acc_array
+
+acc_array.max()
+
+acc_array.argmax()
