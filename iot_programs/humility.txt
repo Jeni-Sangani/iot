@@ -1,0 +1,47 @@
+import sys
+import adafruit_dht
+import time
+import sqlite3
+import datetime
+import RPi.GPIO as GPIO
+import paho.mqtt.client as mqtt
+
+broker_url="broker.hivemq.com";
+broker_port=1883;
+
+def on_connect(client,userdata,flags,rc):
+    print("connected with result code",rc)
+    
+def on_message(client,userdata,message):
+    print("Recieved message")
+    
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(18,GPIO.IN)
+db = sqlite3.connect('dhtdb')
+
+client = mqtt.Client()
+
+client.on_connect = on_connect
+client.on_message = on_message
+client.connect(broker_url,broker_port,60)
+
+dhtDevice = adafruit_dht.DHT11(18)
+while True:
+    try:
+        cur = db.cursor()
+        temperature_c = dhtDevice.temperature
+        temperature_f = temperature_c * (9/5) + 32
+        humidity = dhtDevice.humidity
+        
+        sql = """insert into tbldht(temperatureF,temperatureC,humidity,dt) values(?,?,?,?);"""
+        data_tuple = (temperature_f,temperature_c,humidity,datetime.datetime.now())
+        cur.execute(sql,data_tuple)
+        db.commit()
+        time.sleep(1)        
+        print("Temp: {:.1f} F / {:.1f} C Humidity: {}%".format(temperature_f,temperature_c,humidity))
+        client.publish(topic="topic1",payload="Temp: {:.1f} F / {:.1f} C Humidity: {}%".format(temperature_f,temperature_c,humidity),qos=0,retain=False)
+
+    except RuntimeError as error:
+        print(error.args[0])
+        
+    time.sleep(5.0)

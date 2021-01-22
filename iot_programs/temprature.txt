@@ -1,0 +1,26 @@
+import sqlite3
+import time
+import board
+import adafruit_dht
+
+conn=sqlite3.connect("assone.db")
+cur=conn.cursor()
+
+
+dhtDevice = adafruit_dht.DHT11(board.D4)
+
+while True:
+	try:
+		temperature_c=dhtDevice.temperature
+		temperature_f=temperature_c*(9/5)+32
+		humidity=dhtDevice.humidity
+		tempr=temperature_f
+		print("temp:(:.1f) F / {:.1f} c Humidity: {}%".format(temperature_c,temperature_f,humidity))
+		cur.execute("INSERT INTO humtemp(temp,humidity,currdate) values(?,?,datetime('now'))",(tempr,humidity))
+		cur.execute("COMMIT")
+		time.sleep(5)
+		time.sleep(0.1)
+	except RuntimeError as error:
+		print(error.args[0])
+	time.sleep(2.0)
+

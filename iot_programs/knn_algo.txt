@@ -1,0 +1,80 @@
+import numpy as np
+import pandas as pd
+
+
+Data=pd.read_csv('Iris.csv')
+
+Data.shape
+
+Data.tail()
+
+Data.groupby('Species').size()
+
+feature_columns=[['SepalLengthCm',	'SepalWidthCm',	'PetalLengthCm',	'PetalWidthCm']]
+feature_columns
+
+
+X=Data[['SepalLengthCm',	'SepalWidthCm',	'PetalLengthCm',	'PetalWidthCm']].values
+X
+
+y=Data['Species'].values
+y
+
+from sklearn.preprocessing import LabelEncoder
+le=LabelEncoder()
+y=le.fit_transform(y)
+y
+
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
+
+y.shape
+y_train.shape
+
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import confusion_matrix, accuracy_score
+
+
+classifier=KNeighborsClassifier(n_neighbors=k)
+classifier.fit(X_train, y_train)
+
+#testset = [[5.4, 1.6, 3.4, 2.2]]
+y_pred = classifier.predict(X_test)
+#y_pred = classifier.predict(testset)
+y_pred
+
+y_pred.shape
+
+cm = confusion_matrix(y_test, y_pred)
+cm
+
+acc = accuracy_score(y_test, y_pred)*100
+print('ModelAccuracy = '+ str(round(acc,0)))
+
+# Calculating value of k
+k = (np.sqrt(len(X_train)))/2
+k = round(k)
+
+if k%2 == 0:
+  k =k+1
+k=int(k)
+k  
+
+
+df = pd.DataFrame()
+df['Actual Data']= y_test
+df['Predicted Data'] = y_pred
+df
+
+# Counting Correct and Wrong 
+i = 0
+count = 0
+wrong = []
+for i in range(len(df)):
+  if df.iloc[i][0] == df.iloc[i][1]:
+    i = i+1
+  else:
+    wrong.append(i)
+#count
+wrong
+

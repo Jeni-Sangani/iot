@@ -1,0 +1,72 @@
+import numpy as np
+import pandas as pd
+data = pd.read_csv("Heart.csv")
+data
+
+# Group by column name
+# df = data.groupby('Thal').nunique()
+# df
+
+# Transform ChestPain & Thal string data to numeric data
+from sklearn.preprocessing import LabelEncoder
+le=LabelEncoder()
+data["ChestPain"]=le.fit_transform(data["ChestPain"])
+data["Thal"]=le.fit_transform(data["Thal"].astype(str))
+data["AHD"]=le.fit_transform(data["AHD"].astype(str))
+# data
+
+# Removing null values
+null_val = ['Age','Sex','ChestPain','RestBP','Chol','Fbs','RestECG','MaxHR','Oldpeak','Slope','Ca','Thal','AHD']
+for col in null_val:
+    data[col] = data[col].replace(0, np.nan)
+    mean = int(data[col].mean(skipna=True))
+    data[col] = data[col].replace(np.nan, mean)
+
+# data
+
+# x = data[['Age','Sex','ChestPain','RestBP','Chol','Fbs','RestECG','MaxHR','Oldpeak','Slope','Ca','Thal']].values
+# y = data['AHD'].values
+y = data.iloc[:, 0].values 
+
+X = data.iloc[:, [0,8,3,6]].values
+
+from sklearn.preprocessing import LabelEncoder
+labelencoder = LabelEncoder()
+X[:, 0] = labelencoder.fit_transform(X[:, 0])
+
+# X = X.reshape(len(x), 1)
+print(X)
+
+# divide data into training and testing dataset
+from sklearn.model_selection import train_test_split
+xTrain, xTest, yTrain, yTest = train_test_split(X, y, train_size = 0.80, random_state=0)
+
+# prepare model
+from sklearn.linear_model import LinearRegression
+model = LinearRegression()
+
+# train the model
+model.fit(xTrain, yTrain)
+
+# prediction
+yPred = model.predict(xTest)
+#yPred
+
+from sklearn.metrics import r2_score
+r2 = r2_score(yTest, yPred)
+r2
+
+# cross validation
+accu = []
+for i in range(1, 101):
+  xTrain, xTest, yTrain, yTest = train_test_split(x, y, train_size=0.80, random_state=i)
+  model = LinearRegression()
+  model.fit(xTrain, yTrain)
+  yPred = model.predict(xTest)
+  r2 = r2_score(yTest, yPred)
+  accu.append(r2)
+
+accu_array = np.array(accu)
+print(accu_array)
+accu_array.max()
+

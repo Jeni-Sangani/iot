@@ -1,0 +1,18 @@
+import spidev
+import time
+spi = spidev.SpiDev(0,0)
+spi.open(0,0)
+msg= 0xAA
+
+#spi.max_speed_hz = 116200
+spi.max_speed_hz =390000
+while 1:
+	msg= [msg,0b00000000]
+	resp = spi.xfer2([0xAA ,spi.max_speed_hz ,3])
+	resp = spi.xfer2([0xAA])
+	print(resp)
+#	spi.writebytes([0x4 ,0x06])
+#	y= spi.readbytes(1)
+#	print(y)
+	time.sleep(0.5)
+

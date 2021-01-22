@@ -1,0 +1,34 @@
+import RPi.GPIO as GPIO
+import time
+import sqlite3
+import sys
+from datetime import datetime,date
+conn=sqlite3.connect('sense_data.db')
+GPIO.setwarnings(False)
+GPIO.setmode(GPIO.BOARD)
+GPIO.setup(18,GPIO.IN)
+GPIO.setup(24,GPIO.OUT)
+while True:
+    i=GPIO.input(18)
+    if i==0:
+        try:
+            c=conn.cursor()
+            c.execute("insert into dhtreadings(data) values('not detected');")
+            conn.commit()
+        except e:
+            if conn:
+                conn.rollback()
+            print("error")
+            sys.exit(1)
+        print("not detected")
+        GPIO.output(24,0)
+        time.sleep(5)
+    if i==1:
+        c=conn.cursor()
+        c.execute("INSERT INTO dhtreadings(data) values(datetime('now'));")
+        conn.commit()
+        print("Detected")
+        GPIO.output(24,1)
+        time.sleep(1)
+
+

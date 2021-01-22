@@ -1,0 +1,60 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+# import dataset
+data = pd.read_csv('Salaries.csv')
+data.head()
+
+# divide data into dependent and independent variable
+X=data.iloc[:, 1:2].values
+y=data.iloc[:, 2].values
+
+
+# split data
+from sklearn.model_selection import  train_test_split
+x_train, x_test, y_train, y_test=train_test_split(X,y, test_size=0.2, random_state=0)
+
+# scale data
+from sklearn.preprocessing import  StandardScaler
+sc_x=StandardScaler()
+x_train=sc_x.fit_transform(x_train)
+x_test=sc_x.fit_transform(x_test)
+
+
+# fit linear model
+from sklearn.linear_model import  LinearRegression
+lin_reg=LinearRegression()
+lin_reg.fit(X,y)
+
+def lin_reg_fn():
+  plt.scatter(X,y, color='red')
+  plt.plot(X, lin_reg.predict(X), color='blue')
+  plt.title('Linear Regression line')
+  plt.show()
+  return
+lin_reg_fn()
+
+#ploynomial regression
+from sklearn.preprocessing import PolynomialFeatures
+poly_reg=PolynomialFeatures(degree=4)
+x_poly=poly_reg.fit_transform(X)
+
+pol_reg=LinearRegression()
+pol_reg.fit(x_poly, y)
+
+
+def poly_reg_fn():
+  plt.scatter(X,y, color='red')
+  #plt.plot(X, poly_reg.predict(poly_reg.fit_transform(X)),color='blue')
+  plt.plot(X, pol_reg.predict(poly_reg.fit_transform(X)), color='blue')
+  plt.title('Polynomial Regression')
+  plt.show()
+  return
+poly_reg_fn()
+
+lin_reg.predict([[5.5]])
+
+
+pol_reg.predict(poly_reg.fit_transform([[5.5]]))
